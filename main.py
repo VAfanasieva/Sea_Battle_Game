@@ -1,19 +1,13 @@
 import pygame
 import sys
 import random
-import copy
+from CreatingWindow import Background
 
-cellSize = 30
-WIDTH = 35 * cellSize  # ширина игрового окна
-HEIGHT = 19 * cellSize  # высота игрового окна
-
-OFFSET = 12
-
-pygame.init()
-
-screen = pygame.display.set_mode((WIDTH, HEIGHT))       #создаем экран для отображения
-pygame.display.set_caption("Sea battle")                #заголовок окна
-
+screen = Background.screen
+cellSize = Background.cellSize
+WIDTH = Background.WIDTH
+HEIGHT = Background.HEIGHT
+OFFSET = Background.OFFSET
 
 class Game:
     coorOfCrosses = []
@@ -76,11 +70,9 @@ class Game:
                 self.addCoorOfUnnecessaryCells(firedCell, playr, opponent)
                 if len(opponent.coorLiveCell[ship]) == 1:
                     self.addCoorOfUnnecessaryCells(firedCell, playr, opponent, diagonalOnly=False)
-                opponent.coorLiveCell[ship].remove(firedCell)
                 opponent.damagedCells[ship].append(firedCell)
-                #opponent.coorOwnShips[ship].append(firedCell)
                 if computerTurn:
-                    if len(opponent.coorLiveCell[ship]) == 0:
+                    if len(opponent.coorOwnShips[ship]) == len(opponent.damagedCells[ship]):
                         self.addUnnecessaryCellsAfterTheShipIsKilled(opponent.damagedCells[ship], opponent)
                         PlayersField.computerNextShot.clear()
                         playr.numberOfEnemyShipsKilled += 1
@@ -90,6 +82,7 @@ class Game:
                         PlayersField.computerNextShot.append((firedCell[0] - 1, firedCell[1]))
                         PlayersField.computerNextShot.append((firedCell[0], firedCell[1] - 1))
                 else:
+                    opponent.coorLiveCell[ship].remove(firedCell)
                     if len(opponent.coorLiveCell[ship]) == 0:
                         self.addUnnecessaryCellsAfterTheShipIsKilled(opponent.damagedCells[ship], opponent)
                         opponent.shipsKilled.append(opponent.damagedCells[ship])
@@ -214,9 +207,9 @@ class PlayersField():
         self.opponenOffset = (offset - OFFSET) * (-1)
         self.coordinatesFree = [(x, y) for x in range(1 + self.offset, 11 + self.offset) for y in range(1, 11)]     # свободные ячейки
         self.coorOwnShips = []      # координаты собсвенных кораблей
-        self.coorLiveCell = []
         self.shipsKilled = []
         self.damagedCells = [[], [], [], [], [], [], [], [], [], []]
+        self.coorLiveCell = []
         self.coordinatesForShots = [(x, y) for x in range(1 + self.opponenOffset, 11 + self.opponenOffset) for y in range(1, 11)]
 
     # создаем корабль, клетки которого записаны в виде кордежа
@@ -256,7 +249,9 @@ class PlayersField():
         for countCell in range(4, 0, -1):
              for _ in range(5 - countCell):
                  newShip = self.createShipComputer(countCell, self.coordinatesFree)
+                 shipCopy = newShip.copy()
                  self.coorOwnShips.append(newShip)
+                 self.coorLiveCell.append(shipCopy)
                  self.removeCoorFromFree(newShip)
 
     def drawShips(self, listShip):
@@ -342,7 +337,9 @@ class PlayersField():
                         if set(tempShip).issubset(self.coordinatesFree):
                             if (5 - len(tempShip)) > numberOfDowned[len(tempShip) - 1]:
                                 numberOfDowned[len(tempShip) - 1] += 1
+                                tempShipCopy = tempShip.copy()
                                 self.coorOwnShips.append(tempShip)
+                                self.coorLiveCell.append(tempShip)
                                 self.removeCoorFromFree(tempShip)
                             else:
                                 Background.showErrorMessage(nowBack, f'Уже достаточно {len(tempShip)} кораблей!')
@@ -467,9 +464,9 @@ def main():
     newGame = Game()
     newGame.drawWholeBackground(human, computer, "Разместите корабли")
     human.drawRectangleHuman(newGame)
-    human.coorLiveCell = human.coorOwnShips.copy()
     computer.populateGrid()
-    computer.coorLiveCell = computer.coorOwnShips.copy()
+
+
     while True:
         if computer.numberOfEnemyShipsKilled == 10 and not theEnd:
             result = Frame()
@@ -484,13 +481,15 @@ def main():
             newGame.drawWholeBackground(human, computer, False)
             pygame.display.update()
         elif computerTurn:
-            pygame.time.delay(1000)
             newGame.drawWholeBackground(human, computer, "Ход противника!")
             pygame.display.update()
+            pygame.time.delay(1000)
             if computer.computerNextShot:
                 computerTurn = computer.computerShots(newGame, human, PlayersField.computerNextShot)
             else:
                 computerTurn = computer.computerShots(newGame, human, computer.coordinatesForShots)
+            if computer:
+                newGame.drawWholeBackground(human, computer, "Ваш ход!")
             pygame.display.update()
         else:
             newGame.drawWholeBackground(human, computer, "Ваш ход!")
