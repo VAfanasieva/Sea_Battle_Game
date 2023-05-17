@@ -7,6 +7,8 @@ cellSize = 30
 WIDTH = 35 * cellSize  # ширина игрового окна
 HEIGHT = 19 * cellSize  # высота игрового окна
 
+OFFSET = 12
+
 pygame.init()
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))       #создаем экран для отображения
@@ -81,29 +83,32 @@ class Background():
         for ver in range(cellSize, WIDTH, cellSize):
             pygame.draw.line(screen, self.colorGrid, (ver, 0), (ver, HEIGHT), 1)
         self.drawGrid(0, "MY")
-        self.drawGrid(12, "COMPUTER")
+        self.drawGrid(OFFSET, "COMPUTER")
 
-class Button():
-    def __init__(self):
+    def showErrorMessage(self, message):
+        fontMes = pygame.font.SysFont(Background.fontName, cellSize)
+        text = fontMes.render(message, True, Background.objectColor)
+        screen.blit(text, ((WIDTH - text.get_width()) / 2, HEIGHT - cellSize * 1.5))
+
+
+
+class PlayersField():
+    colorPoint = (0, 0, 0)
+    cellsUnnecessary = pygame.image.load('unnecessaryСells.bmp')
+    colorOfCross = (255, 0, 0)
+
+    def __init__(self, offset):
+        self.offset = offset
+        self.coordinatesFree = [(x, y) for x in range(1 + self.offset, 11 + self.offset) for y in range(1, 11)]     # свободные ячейки
+        self.coorOwnShips = []      # координаты собсвенных кораблей
+        self.listShipsCoordinates = []
+    #def __init__(self, player, offset, numderOfCell, coordinates ):
+    # self.numderOfCell = numderOfCell
+
+    def hit(self):
         pass
 
-    def drawButton(self, x, text):
-        rect = pygame.Rect(x, cellSize, 5 * cellSize, 2 * cellSize)
-        pygame.draw.rect(screen, Background.objectColor, rect, width=Background.thicknessOfObjects)
-        txt = Background.font.render(text, True, Background.objectColor)
-        screen.blit(txt, (x + (5 * cellSize - txt.get_width()) // 2, cellSize + (2 * cellSize - txt.get_height()) // 2))
-
-class Player():
-    def __init__(self):
-        self.coordinatesFree = set((x, y) for x in range(1, 11) for y in range(1, 11))     # свободные ячейки
-        self.coorOwnShips = set()       # координаты собсвенных кораблей
-class Ship():
-
-    colorOfCross = (255, 0, 0)
-    def __init__(self, player, offset, numderOfCell, coordinates ):
-        self.player = player
-        self.offset = offset
-        self.numderOfCell = numderOfCell
+    def miss(self):
         pass
 
     # создаем корабль, клетки которого записаны в виде кордежа
@@ -119,56 +124,36 @@ class Ship():
             else:
                 direction, y = self.addBlockToShip(y, direction, vector, coordinatesShip)
 
-        if self.isShipValid(coordinatesShip):
+        if set(coordinatesShip).issubset(coordinatesFree):
             return coordinatesShip
         return self.createShipComputer(numderOfCell, coordinatesFree)
 
     # возвращает блок для корабля
-    def addBlockToShip(self, coor, direction, vector, coordinates_ship):      # получаеи новую клетку для корабля, если она удовлетворяет требованиям - не выходит за рамки поля
-        if (coor <= 1 and direction == -1) or (coor >= 10 and direction == 1):
+    def addBlockToShip(self, coor, direction, vector, coordinatesShip):      # получаеи новую клетку для корабля, если она удовлетворяет требованиям - не выходит за рамки поля
+        if (coor <= 1 - OFFSET * cellSize * vector and direction == -1) or (coor >= 10 + OFFSET * cellSize * vector and direction == 1):
             direction *= -1
-            return direction, coordinates_ship[0][vector] + direction
+            return direction, coordinatesShip[0][vector] + direction
         else:
-            return direction, coordinates_ship[-1][vector] + direction
-
-    # проверяет удовлетворет ли корабль условию
-    def isShipValid(self, newShip):
-        ship = set(newShip)
-        return ship.issubset(self.player.coordinatesFree)
-
-    # добавляет координаты нового корабля в сет с множеством координат остальных кораблей
-    def addNewShip(self, newShip):
-        self.player.coorOwnShips.update(newShip)
+            return direction, coordinatesShip[-1][vector] + direction
 
     # удаляет все клетки вокруг нового корабля из доступных
     def removeCoorFromFree(self, newShip):
         for coor in newShip:
             for i in range(-1, 2):
                 for j in range(-1, 2):
-                    if 0 < (coor[0] + i) < 11 and 0 < (coor[1] + j) < 11:           # не выходим ли за рамки сетки
-                        self.player.coordinatesFree.discard((coor[0] + i, coor[1] + j))
-    #
-    def populate_grid(self):
-        listShipsсoordinates = []
+                    if 12 < (coor[0] + i) < 23 and 0 < (coor[1] + j) < 11 and (coor[0] + i, coor[1] + j) in self.coordinatesFree:           # не выходим ли за рамки сетки
+                        self.coordinatesFree.remove((coor[0] + i, coor[1] + j))
+
+    def populateGrid(self):
         for countCell in range(4, 0, -1):
              for _ in range(5 - countCell):
-                 newShip = self.createShipComputer(countCell, self.player.coordinatesFree)
-                 listShipsсoordinates.append(newShip)
-                 self.addNewShip(newShip)
+                 newShip = self.createShipComputer(countCell, self.coordinatesFree)
+                 self.listShipsCoordinates.append(newShip)
+                 self.coorOwnShips.append(newShip)
                  self.removeCoorFromFree(newShip)
-        return listShipsсoordinates
 
-    def drawCross(self, addCoorOfCrosses):  # какой сет передаем
-        for cell in addCoorOfCrosses:
-            x1 = cellSize * (cell[0] - 1) + Background.leftMargin
-            y1 = cellSize * (cell[1] - 1) + Background.upperMargin
-            pygame.draw.line(screen, self.colorOfCross, (x1, y1), (x1 + cellSize, y1 + cellSize),
-                             Background.thicknessOfObjects)
-            pygame.draw.line(screen, self.colorOfCross, (x1, y1 + cellSize), (x1 + cellSize, y1),
-                             Background.thicknessOfObjects)
-
-    def drawBordersShips(self, shipsCoordinatesList):
-        for coor in shipsCoordinatesList:
+    def drawShips(self):
+        for coor in self.coorOwnShips:
             ship = sorted(coor)
             x_start = ship[0][0]
             y_start = ship[0][1]
@@ -184,14 +169,75 @@ class Ship():
 
             pygame.draw.rect(screen, Background.objectColor, ((x, y), (ship_width, ship_height)), width=2)
 
-    def drawRectangle(self):
-        pass
 
-class FieldObjects():
-    colorPoint = (0, 0, 0)
-    cellsUnnecessary = pygame.image.load('unnecessaryСells.bmp')
-    def __init__(self):
-        pass
+    def drawRectangleHuman(self, back):
+        drawing = False
+        startX, startY = (0, 0)
+        start = (0, 0)
+        shipSize = (0, 0)
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    drawing = True
+                    startX, startY = event.pos
+                    start = (startX, startY)
+                    shipSize = (startX, startY)
+                elif drawing and event.type == pygame.MOUSEMOTION:
+                    endX, endY = event.pos
+                    end = (endX, endY)
+                    shipSize = (endX - startX, endY - startY)
+                elif drawing and event.type == pygame.MOUSEBUTTONDOWN:
+                    tempShip = [] #временный корабль
+                    endX, endY = event.pos
+                    drawing = False
+                    shipSize = (0, 0)
+                    numberOfDowned = [0, 0, 0, 0]
+                    cellStart = ((startX - Background.leftMargin) // (cellSize + 1),
+                                 (startY - Background.upperMargin) // (cellSize + 1))
+                    cellEnd = ((endX - Background.leftMargin) // (cellSize + 1),
+                                 (endY - Background.upperMargin) // (cellSize + 1))
+                    if cellStart > cellEnd:
+                        cellStart, cellEnd = cellEnd, cellStart
+                    if 0 < cellStart[0] < 11 and 0 < cellStart[1] < 11 and 0 < cellEnd[0] < 11 and 0 < cellEnd[1] < 11:
+                        if cellStart[0] == cellEnd[0] and (cellEnd[1] - cellStart[1]) < 4:
+                            for cell in range(cellStart[1], cellEnd[1] + 1):
+                                tempShip.append((cellStart[0], cell))
+                        elif cellStart[1] == cellEnd[1] and (cellEnd[0] - cellEnd[0]) < 4:
+                            for cell in range(cellStart[0], cellEnd[0] + 1):
+                                tempShip.append((cell, cellStart[1]))
+                        else:
+                            Background.showErrorMessage(back, "Корабль слишком большой!")
+                    else:
+                        Background.showErrorMessage(back, "Корабль за пределами сетки!")
+                    if tempShip:
+                        if set(tempShip).issubset(self.coordinatesFree):
+                            if (5 - len(tempShip)) > numberOfDowned[len(tempShip) - 1]:
+                                numberOfDowned[len(tempShip) - 1] += 1
+                                self.coorOwnShips.append((tempShip))
+                                self.removeCoorFromFree(tempShip, self)
+                            else:
+                                Background.showErrorMessage(back, f'Уже достаточно {len(tempShip)} кораблей!')
+                        else:
+                            Background.showErrorMessage(back, f'Корабли соприкасаются!')
+            if len(self.coorOwnShips) == 10:
+                break
+            pygame.draw.rect(screen, Background.objectColor, (start, shipSize), Background.thicknessOfObjects)
+            #self.drawBordersShips(player.coorOwnShips)
+            pygame.display.update()
+
+
+    def drawCross(self, addCoorOfCrosses):  # какой сет передаем
+        for cell in addCoorOfCrosses:
+            x1 = cellSize * (cell[0] - 1) + Background.leftMargin
+            y1 = cellSize * (cell[1] - 1) + Background.upperMargin
+            pygame.draw.line(screen, self.colorOfCross, (x1, y1), (x1 + cellSize, y1 + cellSize),
+                             Background.thicknessOfObjects)
+            pygame.draw.line(screen, self.colorOfCross, (x1, y1 + cellSize), (x1 + cellSize, y1),
+                             Background.thicknessOfObjects)
+
 
     def drawPoints(self, coorOfPoints):
         for coor in coorOfPoints:
@@ -208,43 +254,16 @@ class FieldObjects():
     def drawField(self):
         pass
 
-class Frame():
-    sizeName = 20
-    fontName = 'MuseoSansCyrl500Italic.otf'
-    backColor = (0, 0, 85)
-    colorFill = (115, 115, 115, 40)
+class Button():
     def __init__(self):
         pass
 
-    def hideFrame(self):
-        pass
+    def drawButton(self, x, text):
+        rect = pygame.Rect(x, cellSize, 5 * cellSize, 2 * cellSize)
+        pygame.draw.rect(screen, Background.objectColor, rect, width=Background.thicknessOfObjects)
+        txt = Background.font.render(text, True, Background.objectColor)
+        screen.blit(txt, (x + (5 * cellSize - txt.get_width()) // 2, cellSize + (2 * cellSize - txt.get_height()) // 2))
 
-class Instruction(Frame):
-    sizeFontTitle = 30
-    fontTitle = 'MuseoSansCyrl700Italic.otf'
-    title = "Правила игры “Морской бой”"
-    name = "Цель игры состоит в том, чтобы утопить все боевые единицы соперника. Игрок выбирает, какую клетку хочет проверить, " \
-          "после кликает на выбранную клетку. Если у противника в такой клеточке располагается корабль, то в данной клеточке ставится крестик. " \
-          "После попадания игрок получает право на еще один выстрел. Когда он кликает на клетку, которая у противника пустая, " \
-          "то в этой клетке ставится точка и ход переходит противнику . Победителем становится тот, кто первым обнаружил все суда соперника."
-
-    def printInstruction(self):
-        screen.fill(self.colorFill)
-        rect = pygame.Rect(165, 75, 720, 335)
-        pygame.draw.rect(screen, self.backColor, rect)
-        txtTitle = Background.font.render(self.title, True, Background.objectColor)
-        txtName = Background.font.render(self.name, True, Background.objectColor)
-        screen.blit(txtTitle, (WIDTH // 2, 100))
-        screen.blit(txtName, (WIDTH // 2, HEIGHT // 2))
-
-class Result(Frame):
-
-    def printResult(self, rez):
-        screen.fill(self.colorFill)
-        rect = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 60, 300, 120)
-        pygame.draw.rect(screen, self.backColor, rect)
-        txt = Background.font.render(rez, True, Background.objectColor)
-        screen.blit(txt, (WIDTH // 2, HEIGHT // 2))
 
 class Close(Button):
     def drawButtonClose(self, x0, y0):
@@ -257,21 +276,94 @@ class Close(Button):
     def hideFrame(self):
         pass
 
+
+class Frame():
+    sizeName = 20
+    fontName = 'MuseoSansCyrl500Italic.otf'
+    backColor = (217, 217, 217)
+    colorFill = (115, 115, 115, 110)
+    sizeFontTitle = 30
+    fontTitle = 'MuseoSansCyrl700Italic.otf'
+    font = pygame.font.SysFont(fontTitle, cellSize, italic=True)
+    title = "Правила игры “Морской бой”"
+    name = ["Цель игры состоит в том, чтобы утопить все боевые единицы соперника.",
+            "Игрок выбирает, какую клетку хочет проверить,после кликает на выбранную клетку.",
+            "Если у противника в такой клеточке располагается корабль, то в данной клеточке ставится крестик.",
+            "После попадания игрок получает право на еще один выстрел.",
+            "Когда он кликает на клетку, которая у противника пустая,",
+            "то в этой клетке ставится точка и ход переходит противнику.",
+            "Победителем становится тот, кто первым обнаружил все суда соперника."]
+
+    def __init__(self):
+        pass
+
+    def hideFrame(self):
+        pass
+
+
+    def printInstruction(self):
+        back = pygame.Surface((WIDTH, HEIGHT))
+        back = back.convert_alpha()
+        back.fill(self.colorFill)
+        screen.blit(back, (0, 0))
+        rect = pygame.Rect(115, 75, 825, 335)
+        pygame.draw.rect(screen, self.backColor, rect)
+        txtTitle = self.font.render(self.title, True, Background.objectColor)
+        screen.blit(txtTitle, ((WIDTH - txtTitle.get_width()) // 2, 100))
+        for i in range(0, 7):
+            self.printstr(i)
+        buttonClose = Close()
+        buttonClose.drawButtonClose(940, 75)
+
+    def printstr(self, i):
+        txtName = Background.font.render(self.name[i], True, Background.objectColor)
+        screen.blit(txtName, ((WIDTH - txtName.get_width()) // 2, HEIGHT // 2 + cellSize * (i - 3) - 50))
+
+    def printResult(self, rez):
+        back = pygame.Surface((WIDTH, HEIGHT))
+        back = back.convert_alpha()
+        back.fill(self.colorFill)
+        screen.blit(back, (0, 0))
+        rect = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 60, 300, 120)
+        pygame.draw.rect(screen, self.backColor, rect)
+        txt = Background.font.render(rez, True, Background.objectColor)
+        screen.blit(txt, (WIDTH // 2, HEIGHT // 2))
+
 def main():
     nowBack = Background()
     nowBack.drawBackground()
     exitButton = Button()
     rulesButton = Button()
-    Computer = Player()
-    User = Player()
     exitButton.drawButton(WIDTH - 7 * cellSize, "Выйти")
     rulesButton.drawButton(2 * cellSize, "Правила")
+
+    computerTurn = False
+    computer = PlayersField(OFFSET)
+    print(computer.coordinatesFree)
+    computer.populateGrid()
+    computer.drawShips()
+
+
+    #human = PlayersField(0)
+
+    #human.drawRectangleHuman(nowBack)
+    #computer.coorOwnShips.update(Ship.populate_grid())
+    #Ship.drawBordersShips(computer.coorOwnShips)
+
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                if ((WIDTH - cellSize * 7) <= x <= (WIDTH - cellSize * 2)) and (cellSize <= y <= (cellSize * 3)):
+                    pygame.quit()
+                    sys.exit()
+                if ((cellSize * 2) <= x <= (cellSize * 7)) and (cellSize <= y <= (cellSize * 3)):
+                    instruct = Frame()
+                    instruct.printInstruction()
         pygame.display.update()
 
 
