@@ -1,13 +1,16 @@
 import pygame
 import sys
 import random
-from CreatingWindow import Background
+pygame.font.init()
+pygame.init()
 
-screen = Background.screen
-cellSize = Background.cellSize
-WIDTH = Background.WIDTH
-HEIGHT = Background.HEIGHT
-OFFSET = Background.OFFSET
+cellSize = 30
+WIDTH = 35 * cellSize  # ширина игрового окна
+HEIGHT = 19 * cellSize  # высота игрового окна
+OFFSET = 12
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))  # создаем экран для отображения
+pygame.display.set_caption("Sea battle")  # заголовок окна
 
 class Game:
     coorOfCrosses = []
