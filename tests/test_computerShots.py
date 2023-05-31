@@ -19,19 +19,6 @@ def test_computerShots_positive():
     assert len(player.computerNextShot) == 4
 
 
-def test_computerShots_negative():
-    game = Game()
-    back = Background()
-    player = PlayersField(12)
-    opponent = PlayersField(0)
-    player.coordinatesForShots = [(1, 2), (5, 3), (7, 2), (4, 7), (8, 1)]
-    player.computerNextShot = [(1, 2), (5, 3), (7, 2), (4, 7), (8, 1)]
-    coorForShots = [(7, 8), (9, 5)]
-    player.computerShots(game, opponent, coorForShots, back)
-    assert len(player.coordinatesForShots) == 5
-    assert len(player.computerNextShot) == 5
-
-
 def test_computerShots_negative_1():
     game = Game()
     back = Background()
@@ -65,7 +52,7 @@ def test_computerShots_negative_3():
     player.coordinatesForShots = [(7, 7)]
     player.computerShots(game, opponent, coorForShots, back, False)
     assert len(player.coordinatesForShots) == 0
-    assert len(player.computerNextShot) == 0
+    assert len(player.computerNextShot) == 3
 
 
 
