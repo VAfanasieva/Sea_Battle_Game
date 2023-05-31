@@ -80,3 +80,15 @@
 [Activity diagram The arrangement of ships](./Activity_diagram_The_arrangement_of_ships.jpg)
 [Chart of the state of the game](./Chart_of_the_state_of_the_game.jpg)
 
+>>Реализация.
+
+Диаграмма классов.
+1.	Были объединены три класса Frame, Instruction и Result в один класс в не зависимый от других классов Frame, атрибуты и методы остались прежними и была добавлена вспомогательная функция printstr(self, i).
+2.	Были объединены два класса Button, Close в один класс в не зависимый от других классов Button, атрибуты остались прежними, изменились методы на drawButton(self, x, text, Background) и drawButtonClose(self, x0, y0, Background, backColor).
+3.	Классы Background и его дочерние классы FieldObjects и Ship были разделены на два независимых класса. Классы FieldObjects, Ship и Player были объеденены в один класс PlayerField. В класс PlayerField были добавлены вспомогательный функции createShipComputer(self, numderOfCell, coordinatesFree), addBlockToShip(self, coor, direction, vector, coordinatesShip), removeCoorFromFree(self, newShip), populateGrid(self), drawRectangleHuman(self),  addShipToDraw(self, tempShip, numberOfDowned, nowBack), creatingShip(self, startX, startY, endX, endY, nowBack), creatingShip(self, startX, startY, endX, endY, nowBack). Методы addCoorOfCrosses(self, firedCell, playr, back), addCoorOfUnnecessaryCells(self, firedCell, playr, opponent, back, diagonalOnly=True) были перенесены в класс Game.
+
+Диаграмма последовательности.
+1.	Были изменены составляющие модулей, в модуле Game находится класс Game, в Background – класс Background, в Frame – класс Frame, в Button – класс Button, в PlayersField – класс FlayersField.
+
+
+
