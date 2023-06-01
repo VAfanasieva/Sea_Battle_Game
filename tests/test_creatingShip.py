@@ -6,6 +6,8 @@ def test_creatingShip_positive():
     player = PlayersField(0)
     nowBack = Background()
     assert player.creatingShip(244, 190, 309, 203, nowBack).sort() == [(2, 2), (3, 2), (4, 2)].sort()
+    assert player.creatingShip(244, 190, 250, 246, nowBack).sort() == [(2, 2), (2, 3), (2, 4)].sort()
+
 
 
 def test_creatingShip_negative():
