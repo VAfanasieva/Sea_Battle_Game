@@ -25,7 +25,7 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
-        sudo apt update -y && sudo apt install xrandr -y
+        # sudo apt update -y && sudo apt install xrandr -y
         xrandr --setmonitor
         python -m pip install --upgrade pip
         pip install flake8 pytest
