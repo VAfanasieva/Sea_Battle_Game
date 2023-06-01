@@ -4,7 +4,7 @@ import sys
 from src.Button import Button
 from src.Background import Background
 from src.Frame import Frame
-pygame.init()
+#pygame.init()
 
 
 class PlayersField():
