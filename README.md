@@ -1,5 +1,5 @@
 [![Python application](https://github.com/VAfanasieva/Sea_Battle_Game/actions/workflows/python-app.yml/badge.svg)](https://github.com/VAfanasieva/Sea_Battle_Game/actions/workflows/python-app.yml)
-[![Coverage Status]]
+[![Coverage Status](https://coveralls.io/repos/github/VAfanasieva/Sea_Battle_Game/badge.svg?branch=master)](https://coveralls.io/github/VAfanasieva/Sea_Battle_Game?branch=master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=VAfanasieva_Sea_Battle_Game&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=VAfanasieva_Sea_Battle_Game)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=VAfanasieva_Sea_Battle_Game&metric=bugs)](https://sonarcloud.io/summary/new_code?id=VAfanasieva_Sea_Battle_Game)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=VAfanasieva_Sea_Battle_Game&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=VAfanasieva_Sea_Battle_Game)
