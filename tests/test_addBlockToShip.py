@@ -1,4 +1,4 @@
-from src.PlayersField import PlayersField
+from PlayersField import PlayersField
 
 
 def test_addBlockShip_positive():
