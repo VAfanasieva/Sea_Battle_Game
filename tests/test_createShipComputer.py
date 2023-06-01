@@ -1,4 +1,4 @@
-from src.PlayersField import PlayersField
+from src.players_field import PlayersField
 
 
 def test_createShipComputer_positive():

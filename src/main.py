@@ -3,7 +3,7 @@ import sys
 from Background import Background
 from Frame import Frame
 from Game import Game
-from PlayersField import PlayersField
+from players_field import PlayersField
 
 
 def main():

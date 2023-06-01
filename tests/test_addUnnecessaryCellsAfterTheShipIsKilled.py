@@ -1,6 +1,6 @@
 from src.Background import Background
 from src.Game import Game
-from src.PlayersField import PlayersField
+from src.players_field import PlayersField
 
 
 def test_addUnnecessaryCellsAfterTheShipIsKilled_add_one_cell():
