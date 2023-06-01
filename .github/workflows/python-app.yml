@@ -25,9 +25,6 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
-        sudo apt update -y && sudo apt install x11-xserver-utils -y
-        xrandr --setmonitor DP2-2 1720/400x1440/330+0+0 DP1
-        xrandr
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
@@ -39,4 +36,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        PYTHONPATH=. pytest
+        SDL_VIDEODRIVER=dummy PYTHONPATH=. pytest
