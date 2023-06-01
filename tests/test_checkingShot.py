@@ -1,5 +1,5 @@
-from src.Background import Background
-from src.Game import Game
+from src.background import Background
+from src.game import Game
 from src.players_field import PlayersField
 
 

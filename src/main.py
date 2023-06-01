@@ -1,8 +1,8 @@
 import pygame
 import sys
-from Background import Background
-from Frame import Frame
-from Game import Game
+from background import Background
+from frame import Frame
+from game import Game
 from players_field import PlayersField
 
 

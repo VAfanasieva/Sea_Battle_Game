@@ -1,7 +1,7 @@
 import pygame
 import sys
-from src.Background import Background
-from src.Button import Button
+from src.background import Background
+from src.button import Button
 
 pygame.font.init()
 pygame.init()

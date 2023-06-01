@@ -1,5 +1,5 @@
 import pygame
-from src.Button import Button
+from src.button import Button
 
 pygame.font.init()
 pygame.init()

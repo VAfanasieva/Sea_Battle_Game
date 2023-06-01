@@ -1,10 +1,10 @@
 import random
 import pygame
 import sys
-from src.Button import Button
-from src.Background import Background
-from src.Frame import Frame
-#pygame.init()
+from src.button import Button
+from src.background import Background
+from src.frame import Frame
+
 
 
 class PlayersField():

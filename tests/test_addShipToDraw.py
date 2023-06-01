@@ -1,5 +1,5 @@
 from src.players_field import PlayersField
-from src.Background import Background
+from src.background import Background
 
 
 def test_addShipToDraw_positive():
